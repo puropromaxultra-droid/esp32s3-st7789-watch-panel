@@ -1,0 +1,24 @@
+# ---- 本地私人文件（绝不提交）----
+weather_clock/secrets.h
+
+# ---- GIF 转换产物（体积大，请用 tools/转换GIF.bat 自行生成）----
+lcd_fast/gif_data.h
+lcd_player/gif_data.h
+gif_player/gif_data.h
+gif_player2/gif_data.h
+
+# ---- 工具/会话 ----
+.workbuddy/
+_t.txt
+_t2.txt
+_tmp_*.txt
+*.log
+
+# ---- 临时脚本/日志 ----
+_*
+
+# ---- 系统垃圾 ----
+.DS_Store
+Thumbs.db
+desktop.ini
+build/
