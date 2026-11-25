@@ -85,19 +85,32 @@ def build(gif_path, out_path, size, fit, max_kb, max_frames=0):
         frames = [frames[i] for i in keep]
         delays = [delays[i] for i in keep]
 
-    # 先全量编码，超预算就均匀抽帧
-    while True:
-        encoded = [rgb_to_rle(frame_to_rgb(f, size, fit)) for f in frames]
-        words = sum(len(e) * 2 for e in encoded)
-        approx_kb = words * 2 / 1024.0
-        if approx_kb <= max_kb or len(frames) <= 2:
-            break
-        # 抽掉一半
-        keep = list(range(0, len(frames), 2))
-        frames = [frames[i] for i in keep]
-        delays = [delays[i] for i in keep]
-        min_d = min(delays)
-        delays = [max(min_d * 2, d) for d in delays]
+    # 先只数每帧的 RLE 段数（不保存数据）估体积：每段 2 个 uint16 = 4 字节。
+    # 超预算时二分找「装得下的最大帧数」再均匀取 —— 不能对半砍：
+    # 6 帧 210KB 砍成 3 帧会白扔 95KB（1525KB 那张图就是这么只剩 3 帧的）。
+    sizes = [len(rgb_to_rle(frame_to_rgb(f, size, fit))) * 4 for f in frames]
+    budget = max_kb * 1024.0
+
+    if sum(sizes) > budget and len(frames) > 1:
+        n0 = len(frames)
+        lo, hi = 1, n0
+        best = [0]
+        while lo <= hi:
+            k = (lo + hi) // 2
+            keep = sorted(set(int(i * n0 / k) for i in range(k)))
+            if sum(sizes[i] for i in keep) <= budget:
+                best = keep
+                lo = k + 1
+            else:
+                hi = k - 1
+        factor = n0 / float(len(best))      # 抽帧后延时按比例放大，总时长不变
+        frames = [frames[i] for i in best]
+        delays = [int(delays[i] * factor) for i in best]
+        sizes = [sizes[i] for i in best]
+
+    encoded = [rgb_to_rle(frame_to_rgb(f, size, fit)) for f in frames]
+    words = sum(len(e) * 2 for e in encoded)
+    approx_kb = words * 2 / 1024.0
 
     offsets = [0]
     data = []

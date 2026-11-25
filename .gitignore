@@ -22,3 +22,27 @@ _*
 Thumbs.db
 desktop.ini
 build/
+__pycache__/
+*.pyc
+
+# ---- 大体积素材 / 可再生成的产物（仓库只放源码与文档）----
+# GIF 数据的历史备份，用 tools/转换GIF.bat 可重新生成
+gif_backup/
+# 调试日志转储
+en/
+# 试听音频，tools/mktone.py 可再生成
+tools/test_tone.aud
+tools/test_tone.wav
+tools/boot_preview.wav
+# 测试用 MP3（第三方音频，不入库）
+tools/mp3bench/data/
+# 厂商 datasheet，按型号自行下载
+hardware/datasheets/
+hardware/ESP32-S3-MINI-1_datasheet_en.pdf
+# KiCad 官方符号库副本，装官方库即可
+hardware/lib/Espressif.kicad_sym
+# DRC 报告，每次运行都会变
+hardware/drc*.rpt
+# 代码备份（历史由 git 管）
+*.bak
+*.bak_*
